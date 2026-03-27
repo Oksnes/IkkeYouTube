@@ -2,21 +2,25 @@ html, body {
     background: #f1f1f1;
     height: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
     margin: 0;
     padding: 0;
+    gap: 20px;
+    padding-top: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-/* Main Container */
 main {
     display: flex;
     flex-direction: column;
-    /* justify-content: center; */
     align-items: center;
     border: #2d2929 solid 1px;
     width: 50vw;
     height: 80%;
+    flex-shrink: 0;
 }
 
 h1 {
@@ -31,7 +35,13 @@ h2 {
     font-family: 'Arial', sans-serif;
 }
 
-/* Form Styling */
+.logo {
+    margin-bottom: 20px;
+    max-width: 300px;
+    height: auto;
+    width: 40%;
+}
+
 form {
     display: flex;
     flex-direction: column;

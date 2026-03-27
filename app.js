@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const database = require('better-sqlite3')
 const db = new database('ikkeyoutube.db');
+const multer = require('multer');
+const path = require('path');
 
 require('dotenv').config();
 
@@ -18,7 +20,8 @@ CREATE TABLE IF NOT EXISTS User (
     password TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     profilePicture TEXT,
-    description TEXT
+    description TEXT,
+    admin TEXT
 );
 `).run();
 
@@ -97,3 +100,19 @@ app.use(session({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+
+
+function requireLogin(req, res, next) { //ting med ruten requireLogin krever at du er logget inn for å få tilgang
+  if (!req.session.User) { //Se om bruker er logget inn
+      return res.redirect("/login.html"); //send til login siden hvis du ikke er logget inn
+  }
+  next();
+}
+
+app.get('/', (req, res) => { //sender deg til index.html som standard.
+    res.sendFile(__dirname + '/public/login.html');
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});

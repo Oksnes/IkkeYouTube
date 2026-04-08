@@ -10,17 +10,16 @@
 <body>
     <img src="/Images/ikkeyoutube.webp" alt="IkkeYouTube Logo" class="logo">
     <main>
-        <h1>Welcome to IkkeYouTube</h1>
         <h2>Login</h2>
 
-        <form onsubmit="login(event)" autocomplete="off">
-            <label for="Username">Username:</label>
-            <input type="text" id="Username" name="Username" required><br>
+        <form autocomplete="off">
+            <label for="Email">Email:</label>
+            <input type="email" id="Email" name="Email" required><br>
 
             <label for="Password">Password:</label>
             <input type="password" id="Password" name="Password" required><br>
 
-            <button type="submit">Login</button>
+            <button id="loginButton" type="submit">Login</button>
         </form>
         <p>No account? <a href="register.html">Register here</a></p>
     </main>

@@ -10,17 +10,22 @@
 <body>
     <img src="/Images/ikkeyoutube.webp" alt="IkkeYouTube Logo" class="logo">
     <main>
-        <h1>Welcome to IkkeYouTube</h1>
         <h2>Register a User!</h2>
-        <form onsubmit="Register(event)" autocomplete="off">
+        <form  autocomplete="off">
             
             <label for="Username">Username:</label>
-            <input type="text" id="Username" name="Username" required><br>
+            <input type="text" id="Username" name="Username" required>
 
             <label for="Password">Password:</label>
-            <input type="password" id="Password" name="Password" required><br>
+            <input type="password" id="Password" name="Password" required>
 
-            <button type="submit">Create user</button>
+            <label for="Email">Email:</label>
+            <input type="email" id="Email" name="Email" required>
+
+            <label for="ProfilePicture">Profile Picture:</label>
+            <input type="file" id="ProfilePicture" name="ProfilePicture" accept="image/png, image/jpeg, image/webp">
+
+            <button id="registerButton" type="submit">Create user</button>
         </form>
         <p> Allready have a user? <a href="login.html">>Login<</a></p>
     </main>

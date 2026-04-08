@@ -187,6 +187,22 @@ app.post('/register', async (req, res) => {
     });
 });
 
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    const User = db.prepare('SELECT * FROM User WHERE email = ?').get(email);
+    if (!User) {
+        return res.status(400).json({ error: true, message: 'Invalid email or password.' });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, User.password);
+    if (!passwordMatch) {
+        return res.status(400).json({ error: true, message: 'Invalid email or password.' });
+    }
+
+    req.session.User = { id: User.userID, Username: User.username, Admin: User.admin || 'false' };
+    res.json({ error: false, message: 'Login successful.' });
+});
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

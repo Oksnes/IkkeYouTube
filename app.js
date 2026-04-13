@@ -44,6 +44,11 @@ async function saveFileBuffer(buffer, originalName, opts = {}) {
     if (opts.prefix) {
         filename = `${opts.prefix}-${filename}`;
     }
+    
+    // Write the buffer to disk
+    const filePath = path.join(uploadDir, filename);
+    await fs.promises.writeFile(filePath, buffer);
+    
     return filename;
 }
 

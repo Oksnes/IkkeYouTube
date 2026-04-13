@@ -8,7 +8,7 @@ body {
 body {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(5, 1fr);
+    grid-template-rows: 80px repeat(4, 1fr);
     grid-column-gap: 0px;
     grid-row-gap: 0px;
 }
@@ -20,12 +20,18 @@ nav {
     color: white;
     display: flex;
     align-items: center;
-    padding: 0 20px 20px;
+    padding: 0 20px;
     border-bottom: #333 5px solid;
     border-image: linear-gradient(to right,transparent 10%, black 10%, black 90%, transparent 90%) 100% 1;
-    margin-top: 20px;
 }
 
+main {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px auto;
+}
 .logo {
     height: 50px;
 }
@@ -44,13 +50,13 @@ nav {
 }
 
 #Uploadbutton:hover {
-    background-color: #a9a0a0;
-    animation: uploadhoverfade 0.4s infinite;
+    background-color: #bcb4b4;
+    animation: uploadhoverfade 2s infinite;
 }
 
 @keyframes uploadhoverfade {
     0% { background-color: #d9d2d2; }
-    50% { background-color: #a9a0a0; }
+    50% { background-color: #bcb4b4; }
     100% { background-color: #d9d2d2; }
 }
 
@@ -73,10 +79,9 @@ nav {
 .videos-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px;
-    padding: 20px;
+    gap: 20px;
     width: 90%;
-    height: 70%;
+    height: 100%;
     overflow-y: auto;
 }
 
@@ -88,6 +93,7 @@ nav {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
     margin: 10px;
+    height: 280px;
 }
 
 .video-card:hover {

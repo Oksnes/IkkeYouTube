@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Video</title>
+    <link rel="stylesheet" href="watch.css">
+    <script src="watch.js" defer></script>
+</head>
+<body>
+    <nav>
+        <a href="/home"><img src="Images/IkkeYoutube.webp" alt="Logo" class="logo"></a>
+        <div id="profilepicture-container">
+            <img id="navbar-profile-pic" src="" alt="Profile Picture" class="profilepicture" width="50px" height="50px">
+        </div>
+    </nav>
+
+    <main>
+        <div class="video-player-container">
+            <video id="videoPlayer" controls>
+                <source id="videoSource" src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <div class="video-details-container">
+            <h1 id="videoTitle"></h1>
+            
+            <div class="video-meta">
+                <div class="author-info">
+                    <img id="authorProfilePic" src="" alt="Author" class="author-pic">
+                    <div>
+                        <div id="authorName" class="author-name"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-description">
+                <p id="videoDescription"></p>
+            </div>
+
+            <div class="comments-section">
+                <h2>Comments</h2>
+                <div class="comment-input">
+                    <textarea id="commentInput" placeholder="Add a comment..."></textarea>
+                    <button id="submitCommentBtn">Post Comment</button>
+                </div>
+                <div id="commentsList" class="comments-list">
+                    <!-- Comments will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

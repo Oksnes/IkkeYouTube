@@ -39,5 +39,24 @@ async function loadVideos() {
     }
 }
 
+async function loadUserProfile() {
+    try {
+        const response = await fetch('/api/currentUser');
+        const data = await response.json();
+        
+        if (!data.error && data.user.profilePicture) {
+            document.getElementById('profilepicture').src = data.user.profilePicture;
+        }
+    } catch (err) {
+        console.error('Error loading user profile:', err);
+    }
+}
+
+// Load videos and user profile when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    loadVideos();
+    loadUserProfile();
+});
+
 // Load videos when page loads
 document.addEventListener('DOMContentLoaded', loadVideos);

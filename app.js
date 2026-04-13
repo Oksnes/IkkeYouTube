@@ -209,7 +209,7 @@ app.post('/login', async (req, res) => {
         return res.status(400).json({ error: true, message: 'Invalid email or password.' });
     }
 
-    req.session.User = { id: User.userID, Username: User.username, Admin: User.admin || 'false' };
+    req.session.User = { id: User.userID, Username: User.username, Admin: User.admin || 'false', profilePicture: User.profilePicture };
     res.json({ error: false, message: 'Login successful.' });
 });
 
@@ -266,6 +266,15 @@ app.post('/uploadVideo', requireLogin, async (req, res) => {
             return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
         }
     });
+});
+
+app.get('/api/currentUser', requireLogin, (req, res) => {
+    try {
+        const user = db.prepare('SELECT userID, username, profilePicture FROM User WHERE userID = ?').get(req.session.User.id);
+        return res.json({ error: false, user });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
 });
 
 app.get('/api/videos', (req, res) => {

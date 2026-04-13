@@ -7,8 +7,7 @@
     "express-session": "^1.19.0",
     "multer": "^2.1.1",
     "path": "^0.12.7",
-    "pm2": "^6.0.14",
-    "stream": "^0.0.3"
+    "pm2": "^6.0.14"
   },
   "name": "ikkeyoutube",
   "version": "1.0.0",

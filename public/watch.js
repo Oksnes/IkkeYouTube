@@ -12,6 +12,8 @@ async function loadVideo() {
         // Fetch video details
         const response = await fetch(`/api/video/${videoID}`);
         const data = await response.json();
+        const userResponse = await fetch('/api/currentUser');
+        const userData = await userResponse.json();
 
         if (data.error) {
             document.querySelector('main').innerHTML = `<p>Error: ${data.message}</p>`;
@@ -19,6 +21,7 @@ async function loadVideo() {
         }
 
         const video = data.video;
+        const user = userData.user;
 
         // Set video source
         document.getElementById('videoSource').src = video.videoPath;
@@ -28,8 +31,8 @@ async function loadVideo() {
         document.getElementById('videoTitle').textContent = video.title;
         document.getElementById('videoDescription').textContent = video.description || 'No description provided.';
         document.getElementById('authorName').textContent = video.username;
-        document.getElementById('authorProfilePic').src = video.profilePicture || '/Images/default-avatar.png';
-        document.getElementById('navbar-profile-pic').src = video.profilePicture || '/Images/default-avatar.png';
+        document.getElementById('authorProfilePic').src = video.profilePicture;
+        document.getElementById('navbar-profile-pic').src = user.profilePicture;
 
         // Set up comment submission
     } catch (err) {

@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS Video (
     userID INTEGER NOT NULL,
     videoPath TEXT NOT NULL,
     thumbnailPath TEXT NOT NULL,
+    time INTEGER,
     FOREIGN KEY (userID) REFERENCES User(userID)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -280,10 +281,10 @@ app.get('/api/currentUser', requireLogin, (req, res) => {
 app.get('/api/videos', (req, res) => {
     try {
         const videos = db.prepare(`
-            SELECT v.videoID, v.title, v.description, v.thumbnailPath, v.videoPath, v.userID, u.username, u.profilePicture
-            FROM Video v
-            JOIN User u ON v.userID = u.userID
-            ORDER BY v.videoID DESC
+            SELECT Video.videoID, Video.title, Video.description, Video.thumbnailPath, Video.videoPath, Video.userID, User.username, User.profilePicture
+            FROM Video
+            JOIN User ON Video.userID = User.userID
+            ORDER BY Video.videoID DESC
         `).all();
         
         return res.json({ error: false, videos });
@@ -296,10 +297,10 @@ app.get('/api/video/:videoID', (req, res) => {
     try {
         const { videoID } = req.params;
         const video = db.prepare(`
-            SELECT v.videoID, v.title, v.description, v.thumbnailPath, v.videoPath, v.userID, u.username, u.profilePicture
-            FROM Video v
-            JOIN User u ON v.userID = u.userID
-            WHERE v.videoID = ?
+            SELECT Video.videoID, Video.title, Video.description, Video.thumbnailPath, Video.videoPath, Video.userID, User.username, User.profilePicture
+            FROM Video
+            JOIN User ON Video.userID = User.userID
+            WHERE Video.videoID = ?
         `).get(videoID);
         
         if (!video) {
@@ -312,48 +313,6 @@ app.get('/api/video/:videoID', (req, res) => {
     }
 });
 
-app.get('/api/comments/:videoID', (req, res) => {
-    try {
-        const { videoID } = req.params;
-        const comments = db.prepare(`
-            SELECT c.commentID, c.content, c.userID, u.username
-            FROM Comment c
-            JOIN User u ON c.userID = u.userID
-            WHERE c.videoID = ?
-            ORDER BY c.commentID DESC
-        `).all(videoID);
-        
-        return res.json({ error: false, comments });
-    } catch (err) {
-        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
-    }
-});
-
-app.post('/api/comment', requireLogin, (req, res) => {
-    try {
-        const { videoID, content } = req.body;
-        const userID = req.session.User.id;
-
-        if (!videoID || !content) {
-            return res.status(400).json({ error: true, message: 'videoID and content are required.' });
-        }
-
-        if (content.trim().length === 0) {
-            return res.status(400).json({ error: true, message: 'Comment cannot be empty.' });
-        }
-
-        const stmt = db.prepare('INSERT INTO Comment (content, userID, videoID) VALUES (?, ?, ?)');
-        const info = stmt.run(content, userID, videoID);
-
-        return res.status(201).json({
-            error: false,
-            message: 'Comment posted successfully.',
-            commentID: info.lastInsertRowid
-        });
-    } catch (err) {
-        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
-    }
-});
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

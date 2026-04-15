@@ -1,11 +1,11 @@
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
 const database = require('better-sqlite3')
 const db = new database('ikkeyoutube.db');
 const multer = require('multer');
 const path = require('path');
+const stream = require('stream');
 
 require('dotenv').config();
 
@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS Video (
     userID INTEGER NOT NULL,
     videoPath TEXT NOT NULL,
     thumbnailPath TEXT NOT NULL,
+    time INTEGER,
     FOREIGN KEY (userID) REFERENCES User(userID)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -153,6 +154,10 @@ app.get('/', (req, res) => { //sender deg til index.html som standard.
     res.sendFile(__dirname + '/public/login.html');
 });
 
+app.get('/home', requireLogin, (req, res) => { //sender deg til home.html hvis du er logget inn, hvis ikke blir du sendt til login.html
+    res.sendFile(__dirname + '/public/home.html');
+});
+
 app.post('/register', async (req, res) => {
     upload.single('profilePicture')(req, res, async (err) => {
         try {
@@ -205,9 +210,110 @@ app.post('/login', async (req, res) => {
         return res.status(400).json({ error: true, message: 'Invalid email or password.' });
     }
 
-    req.session.User = { id: User.userID, Username: User.username, Admin: User.admin || 'false' };
+    req.session.User = { id: User.userID, Username: User.username, Admin: User.admin || 'false', profilePicture: User.profilePicture };
     res.json({ error: false, message: 'Login successful.' });
 });
+
+app.post('/uploadVideo', requireLogin, async (req, res) => {
+    upload.fields([
+        { name: 'video', maxCount: 1 },
+        { name: 'thumbnail', maxCount: 1 }
+    ])(req, res, async (err) => {
+        try {
+            if (err instanceof multer.MulterError) {
+                return res.status(400).json({ error: true, message: err.message });
+            } else if (err) {
+                return res.status(400).json({ error: true, message: err.message });
+            }
+
+            const { title, description } = req.body;
+            const videoFile = req.files?.video?.[0];
+            const thumbnailFile = req.files?.thumbnail?.[0];
+
+            if (!title) {
+                return res.status(400).json({ error: true, message: 'Title is required.' });
+            }
+
+            if (!videoFile) {
+                return res.status(400).json({ error: true, message: 'Video file is required.' });
+            }
+
+            if (!thumbnailFile) {
+                return res.status(400).json({ error: true, message: 'Thumbnail file is required.' });
+            }
+
+            // Save video file
+            const videoFileName = await saveFileBuffer(videoFile.buffer, videoFile.originalname, { prefix: `${title}_video` });
+            const videoPath = `/multerFiles/${videoFileName}`;
+
+            // Save thumbnail file
+            const thumbnailFileName = await saveFileBuffer(thumbnailFile.buffer, thumbnailFile.originalname, { prefix: `${title}_thumbnail` });
+            const thumbnailPath = `/multerFiles/${thumbnailFileName}`;
+
+            const unixTimestamp = Math.floor(Date.now() / 1000);
+            // Insert video into database
+            const userID = req.session.User.id;
+            const stmt = db.prepare('INSERT INTO Video (title, description, userID, videoPath, thumbnailPath, time) VALUES (?, ?, ?, ?, ?, ?)');
+            const info = stmt.run(title, description || null, userID, videoPath, thumbnailPath, unixTimestamp);
+
+            return res.status(201).json({
+                error: false,
+                message: 'Video uploaded successfully.',
+                videoID: info.lastInsertRowid,
+                videoPath: videoPath,
+                thumbnailPath: thumbnailPath
+            });
+        } catch (err) {
+            return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+        }
+    });
+});
+
+app.get('/api/currentUser', requireLogin, (req, res) => {
+    try {
+        const user = db.prepare('SELECT userID, username, profilePicture FROM User WHERE userID = ?').get(req.session.User.id);
+        return res.json({ error: false, user });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
+
+app.get('/api/videos', (req, res) => {
+    try {
+        const videos = db.prepare(`
+            SELECT Video.videoID, Video.title, Video.description, Video.thumbnailPath, Video.videoPath, Video.userID, User.username, User.profilePicture
+            FROM Video
+            JOIN User ON Video.userID = User.userID
+            ORDER BY Video.videoID DESC
+        `).all();
+        
+        return res.json({ error: false, videos });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
+
+app.get('/api/video/:videoID', (req, res) => {
+    try {
+        const { videoID } = req.params;
+        const video = db.prepare(`
+            SELECT Video.videoID, Video.title, Video.description, Video.thumbnailPath, Video.videoPath, Video.userID, User.username, User.profilePicture
+            FROM Video
+            JOIN User ON Video.userID = User.userID
+            WHERE Video.videoID = ?
+        `).get(videoID);
+        
+        if (!video) {
+            return res.status(404).json({ error: true, message: 'Video not found.' });
+        }
+        
+        return res.json({ error: false, video });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
+
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

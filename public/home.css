@@ -1,0 +1,131 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #f1f1f1;
+}
+
+
+body {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: 80px repeat(4, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+nav { grid-area: 1 / 1 / 2 / 6; }
+main { grid-area: 2 / 1 / 6 / 6; }
+
+nav {
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: #333 5px solid;
+    border-image: linear-gradient(to right,transparent 10%, black 10%, black 90%, transparent 90%) 100% 1;
+}
+
+main {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px auto;
+}
+.logo {
+    height: 50px;
+}
+
+#Uploadbutton {
+    background-color: #d9d2d2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    left: 45%;
+    position: absolute;
+    border-radius: 10px;
+    height: 50px;
+    width: 120px;
+}
+
+#Uploadbutton:hover {
+    background-color: #bcb4b4;
+    animation: uploadhoverfade 2s infinite;
+}
+
+@keyframes uploadhoverfade {
+    0% { background-color: #d9d2d2; }
+    50% { background-color: #bcb4b4; }
+    100% { background-color: #d9d2d2; }
+}
+
+#Uploadbutton a {
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    font-size: 16px;
+}
+
+#profilepicture-container {
+    left: 93%;
+    position: absolute;
+}
+#profilepicture {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+}
+
+.videos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    width: 90%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.video-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    margin: 10px;
+    height: 280px;
+}
+
+.video-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.thumbnail {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+}
+
+.video-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.video-info {
+    padding: 12px;
+}
+
+.video-author {
+    font-size: 11px;
+    color: #999;
+    margin-top: 8px;
+    font-weight: 500;
+}

@@ -345,6 +345,7 @@ app.post('/comment', requireLogin, (req, res) => {
         return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
     }
 });
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

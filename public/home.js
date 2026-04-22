@@ -1,6 +1,6 @@
 async function loadVideos() {
     try {
-        const response = await fetch('/api/videos');
+        const response = await fetch('/videos');
         const data = await response.json();
 
         if (data.error) {
@@ -41,7 +41,7 @@ async function loadVideos() {
 
 async function loadUserProfile() {
     try {
-        const response = await fetch('/api/currentUser');
+        const response = await fetch('/currentUser');
         const data = await response.json();
         
         if (!data.error && data.user.profilePicture) {

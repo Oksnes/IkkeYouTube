@@ -269,7 +269,7 @@ app.post('/uploadVideo', requireLogin, async (req, res) => {
     });
 });
 
-app.get('/api/currentUser', requireLogin, (req, res) => {
+app.get('/currentUser', requireLogin, (req, res) => {
     try {
         const user = db.prepare('SELECT userID, username, profilePicture FROM User WHERE userID = ?').get(req.session.User.id);
         return res.json({ error: false, user });
@@ -278,7 +278,7 @@ app.get('/api/currentUser', requireLogin, (req, res) => {
     }
 });
 
-app.get('/api/videos', (req, res) => {
+app.get('/videos', requireLogin, (req, res) => {
     try {
         const videos = db.prepare(`
             SELECT Video.videoID, Video.title, Video.description, Video.thumbnailPath, Video.videoPath, Video.userID, User.username, User.profilePicture
@@ -293,7 +293,7 @@ app.get('/api/videos', (req, res) => {
     }
 });
 
-app.get('/api/video/:videoID', (req, res) => {
+app.get('/video/:videoID', requireLogin, (req, res) => {
     try {
         const { videoID } = req.params;
         const video = db.prepare(`
@@ -313,7 +313,38 @@ app.get('/api/video/:videoID', (req, res) => {
     }
 });
 
+app.get('/comments/:videoID', requireLogin, (req,res) => {
+    try {
+        const { videoID } = req.params;
+        const comments = db.prepare(`
+            SELECT Comment.commentID, Comment.content, Comment.userID, Comment.videoID, User.username, User.profilePicture
+            FROM Comment
+            JOIN User ON Comment.userID = User.userID
+            WHERE Comment.videoID = ?
+        `).all(videoID);
+        
+        return res.json({ error: false, comments });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
 
+app.post('/comment', requireLogin, (req, res) => {
+    try {
+        const { content, videoID } = req.body;
+        const userID = req.session.User.id;
+
+        const stmt = db.prepare('INSERT INTO Comment (content, userID, videoID) VALUES (?, ?, ?)');
+        const info = stmt.run(content, userID, videoID);
+
+        return res.status(201).json({
+            error: false,
+            message: 'Comment added successfully.',
+        });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

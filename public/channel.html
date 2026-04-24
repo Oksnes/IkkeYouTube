@@ -4,23 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="home.css">
-    <script src="home.js" defer></script>
+    <link rel="stylesheet" href="channel.css">
+    <script src="channel.js" defer></script>
 </head>
 <body>
     <nav>
         <a href="/home"><img src="Images/IkkeYoutube.webp" alt="Logo" class="logo"></a>
-        <button id="Uploadbutton" onclick="window.location.href='/upload.html'">
-            <a href="/upload.html">+ Upload</a>
-        </button>
         <div id="profilepicture-container">
             <a href=""><img id="profilepicture" alt="Profile Picture" width="50px" height="50px"></a>
         </div>
     </nav>
-
     <main>
-        <div class="videos-container">
+        <div class="channel-header">
+            <img id="channelProfilePic" src="" alt="Channel Profile Picture"">
+            <h1 id="channelName"></h1>
+        </div>
 
+        <div class="channel-videos-container">
+            <h2>Videos</h2>
+            <div id="channelVideosList"></div>
         </div>
     </main>
 </body>

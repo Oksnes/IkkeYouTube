@@ -44,8 +44,13 @@ async function loadUserProfile() {
         const response = await fetch('/currentUser');
         const data = await response.json();
         
-        if (!data.error && data.user.profilePicture) {
-            document.getElementById('profilepicture').src = data.user.profilePicture;
+        if (!data.error) {
+            // Always set the link to the user's channel
+            document.getElementById('profilepicture').parentElement.href = `/channel.html?id=${data.user.userID}`;
+            // Set the profile picture if one exists
+            if (data.user.profilePicture) {
+                document.getElementById('profilepicture').src = data.user.profilePicture;
+            }
         }
     } catch (err) {
         console.error('Error loading user profile:', err);
@@ -57,6 +62,3 @@ document.addEventListener('DOMContentLoaded', () => {
     loadVideos();
     loadUserProfile();
 });
-
-// Load videos when page loads
-document.addEventListener('DOMContentLoaded', loadVideos);

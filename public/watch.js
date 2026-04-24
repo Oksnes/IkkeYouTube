@@ -12,8 +12,7 @@ async function loadVideo() {
         // Fetch video details
         const response = await fetch(`/video/${videoID}`);
         const data = await response.json();
-        const userResponse = await fetch('/currentUser');
-        const userData = await userResponse.json();
+
 
         if (data.error) {
             document.querySelector('main').innerHTML = `<p>Error: ${data.message}</p>`;
@@ -21,7 +20,6 @@ async function loadVideo() {
         }
 
         const video = data.video;
-        const user = userData.user;
 
         // Set video source
         document.getElementById('videoSource').src = video.videoPath;
@@ -32,7 +30,7 @@ async function loadVideo() {
         document.getElementById('videoDescription').textContent = video.description || 'No description provided.';
         document.getElementById('authorName').textContent = video.username;
         document.getElementById('authorProfilePic').src = video.profilePicture;
-        document.getElementById('navbar-profile-pic').src = user.profilePicture;
+        document.getElementById('authorProfilePic').parentElement.href = `/channel.html?id=${video.userID}`;
 
         // Set up comment submission
     } catch (err) {
@@ -60,6 +58,9 @@ async function loadComments() {
             const commentDiv = document.createElement('div');
             commentDiv.classList.add('comment');
             
+            const profilePictureInteractive = document.createElement('a');
+            profilePictureInteractive.href = `/channel.html?id=${comment.userID}`;
+
             const profilePicture = document.createElement('img');
             profilePicture.src = comment.profilePicture;
             profilePicture.alt = `${comment.username}'s Profile Picture`;
@@ -76,7 +77,8 @@ async function loadComments() {
             commentContent.textContent = comment.content;
 
             commentBody.append(commentAuthor, commentContent);
-            commentDiv.append(profilePicture, commentBody);
+            profilePictureInteractive.appendChild(profilePicture);
+            commentDiv.append(profilePictureInteractive, commentBody);
 
             commentContainer.append(commentDiv);
         });
@@ -88,6 +90,7 @@ async function loadComments() {
 
 submittcommentbutton = document.getElementById('submitCommentBtn');
 submittcommentbutton.addEventListener('click', submitComment);
+
 async function submitComment(event) {
     event.preventDefault();
     const commentInput = document.getElementById('commentInput');
@@ -127,9 +130,23 @@ async function submitComment(event) {
 
 }
 
+async function loadUserProfile() {
+    try {
+        const response = await fetch('/currentUser');
+        const data = await response.json();
+        
+        if (!data.error && data.user.profilePicture) {
+            document.getElementById('profilepicture').src = data.user.profilePicture;
+            document.getElementById('profilepicture').parentElement.href = `/channel.html?id=${data.user.userID}`;
+        }
+    } catch (err) {
+        console.error('Error loading user profile:', err);
+    }
+}
 
 // Load video when page loads
 document.addEventListener('DOMContentLoaded', () => {
     loadVideo();
     loadComments();
+    loadUserProfile();
 });

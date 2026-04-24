@@ -25,12 +25,13 @@ nav .logo {
 
 #profilepicture-container {
     position: absolute;
-    right: 20px;
+    left: 93%;
 }
 
-#navbar-profile-pic {
+#profilepicture {
     height: 50px;
     width: 50px;
+    border-radius: 50%;
 }
 
 main {

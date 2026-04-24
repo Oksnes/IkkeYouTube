@@ -346,6 +346,22 @@ app.post('/comment', requireLogin, (req, res) => {
     }
 });
 
+app.get('/channel/:userID', requireLogin, (req, res) => {
+    try {
+        const { userID } = req.params;
+        const channel = db.prepare(`
+            SELECT User.userID, User.username, User.profilePicture, User.description, Video.videoID, Video.title, Video.thumbnailPath
+            FROM User
+            JOIN Video ON User.userID = Video.userID
+            WHERE User.userID = ?
+        `).all(userID);
+        
+        return res.json({ error: false, channel });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

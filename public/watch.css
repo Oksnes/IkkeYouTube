@@ -53,7 +53,7 @@ main {
     border-radius: 8px;
 }
 
-.video-details-container {
+#videoDetails {
     padding: 20px 0;
 }
 

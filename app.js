@@ -150,6 +150,13 @@ function requireLogin(req, res, next) { //ting med ruten requireLogin krever at 
   next();
 }
 
+function requireAdmin (req, res, next) {
+    if (!req.session.User || req.session.User.admin !== 'True') {
+        return res.status(403).send("Access denied. Admins only.");
+    }
+    next()
+};
+
 app.get('/', (req, res) => { //sender deg til index.html som standard.
     res.sendFile(__dirname + '/public/login.html');
 });
@@ -182,7 +189,7 @@ app.post('/register', async (req, res) => {
                 return res.status(400).json({ error: true, message: 'Profile picture is required.' });
             }
 
-            const profilePictureName = req.file ? await saveFileBuffer(req.file.buffer, req.file.originalname, { width: 200, height: 200}) : null;
+            const profilePictureName = req.file ? await saveFileBuffer(req.file.buffer, req.file.originalname, { width: 200, height: 200, prefix: `${username}_profile` }) : null;
             const profilePicture = profilePictureName ? `/multerFiles/${profilePictureName}` : null;
 
             const saltrounds = 10;
@@ -349,14 +356,71 @@ app.post('/comment', requireLogin, (req, res) => {
 app.get('/channel/:userID', requireLogin, (req, res) => {
     try {
         const { userID } = req.params;
-        const channel = db.prepare(`
-            SELECT User.userID, User.username, User.profilePicture, User.description, Video.videoID, Video.title, Video.thumbnailPath
+        
+        // Get user info
+        const user = db.prepare(`
+            SELECT userID, username, profilePicture, description
             FROM User
-            JOIN Video ON User.userID = Video.userID
-            WHERE User.userID = ?
+            WHERE userID = ?
+        `).get(userID);
+        
+        if (!user) {
+            return res.status(404).json({ error: true, message: 'User not found.' });
+        }
+        
+        // Get user's videos
+        const videos = db.prepare(`
+            SELECT videoID, title, thumbnailPath
+            FROM Video
+            WHERE userID = ?
         `).all(userID);
         
-        return res.json({ error: false, channel });
+        return res.json({ error: false, user, videos });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
+
+app.delete('/deletevideo/:videoID', requireLogin, (req, res) => {
+    const { videoID } = req.params;
+
+    try {
+        // Check if the user owns the video
+        const video = db.prepare('SELECT userID FROM Video WHERE videoID = ?').get(videoID);
+        if (!video) {
+            return res.status(404).json({ error: true, message: 'Video not found.' });
+        }
+        if (video.userID !== req.session.User.id) {
+            return res.status(403).json({ error: true, message: 'You can only delete your own videos.' });
+        }
+
+        const videoAndThumbPath = db.prepare(`
+            SELECT Video.videoPath, thumbnailPath
+            FROM Video
+            WHERE videoID = ?
+        `).all(videoID);
+        
+        videoAndThumbPath.forEach(media => {
+            try {
+                // Delete video file
+                if (media.videoPath) {
+                    const videoFileName = path.basename(media.videoPath);
+                    const videoFilePath = path.join(uploadDir, videoFileName);
+                    if (fs.existsSync(videoFilePath)) fs.unlinkSync(videoFilePath);
+                }
+                // Delete thumbnail file
+                if (media.thumbnailPath) {
+                    const thumbFileName = path.basename(media.thumbnailPath);
+                    const thumbFilePath = path.join(uploadDir, thumbFileName);
+                    if (fs.existsSync(thumbFilePath)) fs.unlinkSync(thumbFilePath);
+                }
+            } catch (err) {
+                console.error('failed to remove video and or thumbnail:', err)
+            }
+        });
+
+        db.prepare('DELETE FROM Video WHERE videoID = ?').run(videoID);
+        return res.json({ error: false, message: 'Video deleted successfully.' });
     } catch (err) {
         return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
     }

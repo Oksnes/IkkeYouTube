@@ -32,6 +32,16 @@ async function loadVideo() {
         document.getElementById('authorProfilePic').src = video.profilePicture;
         document.getElementById('authorProfilePic').parentElement.href = `/channel.html?id=${video.userID}`;
 
+        const videodetails = document.getElementById('videoDetails');
+        const currentUser = await fetch(`/currentUser`);
+        const currentUserData = await currentUser.json();
+        if (!currentUserData.error && currentUserData.user.userID === video.userID) {
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete Video';
+            deleteButton.classList.add('delete-button');
+            deleteButton.addEventListener('click', deleteVideo);
+            videodetails.appendChild(deleteButton);
+        }
         // Set up comment submission
     } catch (err) {
         console.error('Error loading video:', err);
@@ -88,8 +98,8 @@ async function loadComments() {
 }
 
 
-submittcommentbutton = document.getElementById('submitCommentBtn');
-submittcommentbutton.addEventListener('click', submitComment);
+const submitCommentButton = document.getElementById('submitCommentBtn');
+submitCommentButton.addEventListener('click', submitComment);
 
 async function submitComment(event) {
     event.preventDefault();
@@ -143,6 +153,45 @@ async function loadUserProfile() {
         console.error('Error loading user profile:', err);
     }
 }
+
+async function deleteVideo() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const videoID = params.get('id');
+
+        if (!videoID) {
+            console.error('No video ID found');
+            return;
+        }
+
+        if (!confirm('Are you sure you want to delete this video?')) {
+            return;
+        }
+
+        const response = await fetch(`/deletevideo/${videoID}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            console.error('Error deleting video:', data.message);
+            alert('Error: ' + data.message);
+            return;
+        }
+
+        alert('Video deleted successfully');
+        window.location.href = '/home';
+    } catch (err) {
+        console.error('Error deleting video:', err);
+        alert('Error deleting video');
+    }
+}
+
+
 
 // Load video when page loads
 document.addEventListener('DOMContentLoaded', () => {

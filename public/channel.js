@@ -20,17 +20,25 @@ async function loadChannel() {
         const response = await fetch(`/channel/${channelID}`);
         const data = await response.json();
 
-        document.getElementById('channelProfilePic').src = data.channel[0].profilePicture;
-        document.getElementById('channelName').innerText = data.channel[0].username;
+        if (data.error) {
+            const videosContainer = document.getElementById('channelVideosList');
+            videosContainer.innerHTML = '<p>Channel not found.</p>';
+            return;
+        }
+
+        // Display user info
+        document.getElementById('channelProfilePic').src = data.user.profilePicture;
+        document.getElementById('channelName').innerText = data.user.username;
 
         const videosContainer = document.getElementById('channelVideosList');
         videosContainer.innerHTML = '';
 
-        if (data.channel === 0) {
-            videosContainer.innerHTML = '<p>No videos uploaded yet.</p>';
-            return;
-        } else {
-            data.channel.forEach(video => {
+        // Display videos or "no videos" message
+        if (data.videos.length === 0) {
+            videosContainer.innerHTML = '<h3>No videos uploaded yet.</h3>';
+        }
+
+        data.videos.forEach(video => {
             const videoCard = document.createElement('div');
             videoCard.className = 'video-card';
             videoCard.onclick = () => {
@@ -45,8 +53,6 @@ async function loadChannel() {
             `;
             videosContainer.append(videoCard);
         });
-        }
-
 
     } catch (err) {
         console.error('Error loading channel:', err);

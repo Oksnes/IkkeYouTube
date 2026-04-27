@@ -36,13 +36,12 @@ async function loadVideo() {
         const currentUser = await fetch(`/currentUser`);
         const currentUserData = await currentUser.json();
         if (!currentUserData.error && currentUserData.user.userID === video.userID) {
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete Video';
-            deleteButton.classList.add('delete-button');
-            deleteButton.addEventListener('click', deleteVideo);
-            videodetails.appendChild(deleteButton);
+            const deleteVideoButton = document.createElement('button');
+            deleteVideoButton.textContent = 'Delete Video';
+            deleteVideoButton.id = 'deleteVideoButton';
+            deleteVideoButton.addEventListener('click', deleteVideo);
+            videodetails.appendChild(deleteVideoButton);
         }
-        // Set up comment submission
     } catch (err) {
         console.error('Error loading video:', err);
         document.querySelector('main').innerHTML = '<p>Error loading video.</p>';

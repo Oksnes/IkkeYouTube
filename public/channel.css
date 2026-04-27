@@ -87,6 +87,18 @@ main {
     letter-spacing: -0.5px;
 }
 
+#channelDescription {
+    font-size: 1em;
+    margin: 10px 0 0 0;
+    color: #666;
+    font-weight: 400;
+}
+
+.channel-info {
+    display: flex;
+    flex-direction: column;
+}
+
 .channel-videos-container {
     padding: 0 60px;
 }
@@ -144,6 +156,19 @@ main {
     font-weight: 500;
     margin: 8px 12px 12px 12px;
     padding: 0;
+}
+
+#channelDescription button {
+    background: none;
+    border: none;
+    border-radius: 4px;
+    padding: 5px;
+    height: 24px;
+    margin-left: 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    background: rgb(12, 211, 12);
 }
 
 @media (max-width: 768px) {

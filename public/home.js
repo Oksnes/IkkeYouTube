@@ -29,6 +29,7 @@ async function loadVideos() {
                 <div class="video-info">
                     <div class="video-title" title="${video.title}">${video.title}</div>
                     <div class="video-author">${video.username}</div>
+                    <div class="video-timestamp">${new Date(video.time*1000).toLocaleString()}</div>
                 </div>
             `;
 

@@ -259,7 +259,7 @@ app.get('/currentUser', requireLogin, (req, res) => {
 app.get('/videos', requireLogin, (req, res) => {
     try {
         const videos = db.prepare(`
-            SELECT Video.videoID, Video.title, Video.description, Video.thumbnailPath, Video.videoPath, Video.userID, User.username, User.profilePicture
+            SELECT Video.videoID, Video.title, Video.description, Video.thumbnailPath, Video.videoPath, Video.time, Video.userID, User.username, User.profilePicture
             FROM Video
             JOIN User ON Video.userID = User.userID
             ORDER BY Video.videoID DESC
@@ -330,7 +330,7 @@ app.get('/video/:videoID', requireLogin, (req, res) => {
     try {
         const { videoID } = req.params;
         const video = db.prepare(`
-            SELECT Video.videoID, Video.title, Video.description, Video.thumbnailPath, Video.videoPath, Video.userID, User.username, User.profilePicture
+            SELECT Video.videoID, Video.title, Video.description, Video.thumbnailPath, Video.videoPath, Video.time, Video.userID, User.username, User.profilePicture
             FROM Video
             JOIN User ON Video.userID = User.userID
             WHERE Video.videoID = ?
@@ -360,7 +360,7 @@ app.delete('/deletevideo/:videoID', requireLogin, (req, res) => {
         }
 
         const videoAndThumbPath = db.prepare(`
-            SELECT Video.videoPath, thumbnailPath
+            SELECT videoPath, thumbnailPath
             FROM Video
             WHERE videoID = ?
         `).all(videoID);

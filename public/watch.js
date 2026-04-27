@@ -27,6 +27,7 @@ async function loadVideo() {
 
         // Set video details
         document.getElementById('videoTitle').textContent = video.title;
+        document.getElementById('videoTimestamp').textContent = new Date(video.time*1000).toLocaleString();
         document.getElementById('videoDescription').textContent = video.description || 'No description provided.';
         document.getElementById('authorName').textContent = video.username;
         document.getElementById('authorProfilePic').src = video.profilePicture;

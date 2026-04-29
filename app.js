@@ -428,6 +428,64 @@ app.post('/comment', requireLogin, (req, res) => {
     }
 });
 
+// =======================================Like stuff=======================================//
+// =======================================Like stuff=======================================//
+// =======================================Like stuff=======================================//
+
+app.get('/likesamount/:videoID', requireLogin, (req, res) => {
+    try {
+        const { videoID } = req.params;
+        const result = db.prepare('SELECT COUNT(videoID) as count FROM LikedVideo WHERE videoID = ?').get(videoID);
+        const likes = result.count;
+        return res.json({ error: false, likes });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
+
+app.post('/like', requireLogin, (req, res) => {
+    try {
+        const { videoID } = req.body;
+        const userID = req.session.User.id;
+
+        const stmt = db.prepare('INSERT INTO LikedVideo (videoID, userID) VALUES (?, ?)');
+        const info = stmt.run(videoID, userID);
+
+        return res.status(201).json({
+            error: false,
+        });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
+
+app.get('/userlikedvideo/:videoID', requireLogin, (req, res) => {
+    try {
+        const { videoID } = req.params;
+        const userID = req.session.User.id;
+
+        const liked = db.prepare('SELECT * FROM LikedVideo WHERE videoID = ? AND userID = ?').get(videoID, userID);
+        return res.json({ error: false, liked: !!liked });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
+
+app.delete('/unlike', requireLogin, (req, res) => {
+    try {
+        const { videoID } = req.body;
+        const userID = req.session.User.id;
+    
+        const stmt = db.prepare('DELETE FROM LikedVideo WHERE videoID = ? AND userID = ?');
+        stmt.run(videoID, userID);
+        return res.json({
+            error: false
+        });
+    } catch (err) {
+        return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
+    }
+});
+
 // =======================================Channel stuff=======================================//
 // =======================================Channel stuff=======================================//
 // =======================================Channel stuff=======================================//
@@ -460,9 +518,6 @@ app.get('/channel/:userID', requireLogin, (req, res) => {
         return res.status(500).json({ error: true, message: 'Server error: ' + err.message });
     }
 });
-
-
-
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

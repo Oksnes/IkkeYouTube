@@ -33,9 +33,42 @@ async function loadVideo() {
         document.getElementById('authorProfilePic').src = video.profilePicture;
         document.getElementById('authorProfilePic').parentElement.href = `/channel.html?id=${video.userID}`;
 
+        const likesResponse = await fetch(`/likesamount/${videoID}`);
+        const likesData = await likesResponse.json();
+        const likesSpan = document.createElement('span');
+        likesSpan.id = 'likesCount';
+        likesSpan.textContent = likesData.likes || 0;
+
+        const likeButton = document.createElement('button');
+        likeButton.id = 'likeButton';
+        likeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"/></svg>';
+        
+        const userLikedResponse = await fetch(`/userlikedvideo/${videoID}`);
+        const userLikedData = await userLikedResponse.json();
+        const currentUserResponse = await fetch(`/currentUser`);
+        const currentUserData = await currentUserResponse.json();
+
+        if (userLikedData.liked) {
+            likeButton.classList.add('liked');
+            likeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M720-120H320v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h218q32 0 56 24t24 56v80q0 7-1.5 15t-4.5 15L794-168q-9 20-30 34t-44 14ZM240-640v520H80v-520h160Z"/></svg>';
+        } else {
+            likeButton.classList.remove('liked');
+        }
+        // Add event listener to like button with toggle logic
+        likeButton.addEventListener('click', async () => {
+            if (likeButton.classList.contains('liked')) {
+                await unlikeVideo();
+            } else {
+                await likeVideo();
+            }
+        });
+
+        document.getElementById('videoLikesContainer').appendChild(likeButton);
+        document.getElementById('videoLikesContainer').appendChild(likesSpan);
+
+
+
         const videodetails = document.getElementById('videoDetails');
-        const currentUser = await fetch(`/currentUser`);
-        const currentUserData = await currentUser.json();
         if (!currentUserData.error && currentUserData.user.userID === video.userID) {
             const deleteVideoButton = document.createElement('button');
             deleteVideoButton.textContent = 'Delete Video';
@@ -191,6 +224,78 @@ async function deleteVideo() {
     }
 }
 
+async function updateLikeCount() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const videoID = params.get('id');
+        const response = await fetch(`/likesamount/${videoID}`);
+        const data = await response.json();
+        const likesSpan = document.getElementById('likesCount');
+        if (likesSpan) {
+            likesSpan.textContent = data.likes || 0;
+        }
+    } catch (err) {
+        console.error('Error updating like count:', err);
+    }
+}
+
+async function likeVideo() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const videoID = params.get('id');
+        const response = await fetch('/like', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ videoID })
+        });
+        const data = await response.json();
+
+        if (data.error) {
+            console.error('Error liking video:', data.message);
+            alert('Error: ' + data.message);
+            return;
+        }
+
+        // Update UI
+        document.getElementById('likeButton').classList.add('liked');
+        likeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M720-120H320v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h218q32 0 56 24t24 56v80q0 7-1.5 15t-4.5 15L794-168q-9 20-30 34t-44 14ZM240-640v520H80v-520h160Z"/></svg>';
+        await updateLikeCount();
+    } catch (err) {
+        console.error('Error liking video:', err);
+        alert('Error liking video');
+    }
+}
+
+async function unlikeVideo() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const videoID = params.get('id');
+        const response = await fetch('/unlike', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ videoID })
+        });
+        const data = await response.json();
+        if (data.error) {
+            console.error('Error unliking video:', data.message);
+            alert('Error: ' + data.message);
+            return;
+        }
+
+        // Update UI
+        document.getElementById('likeButton').classList.remove('liked');
+        likeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"/></svg>';
+        await updateLikeCount();
+        
+    } catch (err) {
+        console.error('Error unliking video:', err);
+        alert('Error unliking video');
+    }
+}
 
 
 // Load video when page loads

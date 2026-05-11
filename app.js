@@ -139,7 +139,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
-    secret: process.env.secret,
+    secret: 'superdupersecretkeyhahahahaha',
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 60000 * 60 * 24 } // 1 day

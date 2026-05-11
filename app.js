@@ -10,7 +10,6 @@ const stream = require('stream');
 require('dotenv').config();
 
 const app = express();
-const port = 3000;
 
 // =======================================Multer stuff=======================================//
 // =======================================Multer stuff=======================================//
@@ -519,6 +518,6 @@ app.get('/channel/:userID', requireLogin, (req, res) => {
     }
 });
 
-app.listen(port, () => {
+app.listen(process.env.PORT, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
